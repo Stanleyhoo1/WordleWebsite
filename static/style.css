@@ -1,0 +1,383 @@
+body, html {
+  overflow: hidden;
+  height: 100vh;
+  padding: 0;
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+.main-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+h1 {
+  text-align: center; 
+  margin-top: 0; 
+  padding: 1.5% 0; 
+  height: 10vh;
+  background-color: #ffffff; 
+  color: #003253; 
+  font-family: Arial, sans-serif; 
+  width: 100%;
+  position: absolute;
+  font-size: 8vh;
+  top: 0;
+  left: 0;
+}
+
+p {
+    text-align: center;
+    margin-top: 0px;  
+    margin-bottom: 20px;  
+    font-size: 4vh;  
+    font-weight: bold;
+    padding: 0 10px;  
+}
+
+.text{
+  display: absolute;
+  font-size: 20px;
+  left: 200px;
+}
+
+.guess {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 60px;
+  height: 60px;
+  border: 2px solid #333;
+  font-size: 24px;
+}
+#keyboard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 150px;
+}
+
+.keyboard-row {
+    display: flex;
+    justify-content: center;
+    margin: .5% 0;
+}
+.key {
+    width: 5vh;
+    height: 4vh;
+    margin: .5%;
+    border-radius: 14px;
+    border: none;
+    background-color: #d3d6da;
+    cursor: pointer;
+    BORDER: 2px solid #686e75;
+}
+
+.enter-key {
+    width: 10vh; /* Adjust width to fit your design */
+}
+
+.delete-key {
+    font-size: 2.5vh; /* Adjust size of the "X" symbol */
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#guessInput {
+  margin-right: 10px;
+}
+
+#playAgainButton {
+    position: fixed;
+    margin-top: 520px;
+    width: 10vw;
+    height: 3vh;
+    border-radius: 14px;
+}
+/* Add this to your CSS file */
+@keyframes win-animation {
+    0%, 100% {
+        transform: scale(1);
+        background-color: rgb(106, 170, 100); /* Original green color */
+    }
+    50% {
+        transform: scale(1.2);
+        background-color: gold;
+    }
+}
+
+.wordle-box.win {
+    animation: win-animation 1s ease-in-out forwards;
+}
+
+.wordle-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 60px); 
+    grid-template-rows: repeat(6, 60px); 
+    height: 250px;
+    width: 350px;
+    gap: 1%; 
+    justify-content: center; 
+    align-items: center;
+    margin-top: 10vh; 
+    padding-bottom: 0;
+}
+.wordle-box {
+  width: 80%;
+  height: 80%;
+  border-radius: 14px;
+  border: 2px solid #d3d6da; /* Gray border */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2vh;
+  font-weight: bold;
+  color: #000; /* Black text, if needed */
+}
+
+/* Container for the form elements */
+.login-form {
+    position: fixed; /* Fixed positioning makes the container stay in place during scrolling */
+    top: 0; /* Align top edge with the top of the viewport */
+    right: 0; /* Align right edge with the right of the viewport */
+    padding: 10px;
+    display: flex;
+    flex-direction: column; /* Stack form elements vertically */
+    align-items: flex-start; /* Align form items to the start (left) */
+    width: 200px; /* Set a fixed width for the form */
+}
+
+/* Container for buttons */
+.button-container {
+    display: flex; /* Enables flexbox layout */
+    width: 100%; /* Ensures container takes full width of the form */
+    justify-content: space-between; /* Spaces the buttons evenly */
+    gap: 10px; /* Adds space between buttons */
+}
+
+/* General style for buttons */
+.login-form button {
+    flex: 1; /* Allows buttons to grow and fill the container equally */
+    padding: 8px 16px;
+    border-radius: 20px; /* Makes buttons rounded */
+    color: white;
+    border: none;
+    cursor: pointer;
+    margin-bottom: 0; /* Removes bottom margin if previously set */
+}
+
+/* Specific style for the login button */
+.login-btn {
+    background-color: #007bff; /* Bootstrap blue */
+}
+
+.login-btn:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+/* Specific style for the signup button */
+.signup-btn {
+    background-color: #4CAF50; /* Green background for the sign-up button */
+}
+
+.signup-btn:hover {
+    background-color: #45a049; /* Darker green on hover */
+}
+
+/* Style for the flash messages container */
+#flash-messages {
+    position: fixed;      
+    top: 20px;            
+    left: 50%;          
+    transform: translateX(-50%); 
+    z-index: 1000;     
+    width: auto;     
+    text-align: center; 
+}
+
+/* Style for individual flash messages */
+.flash-message {
+    padding: 10px 20px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    background-color: #f8d7da; /* Example for error messages */
+    color: #721c24; /* Example for error messages */
+    /* Add more styles as needed */
+}
+
+.flash-success {
+    background-color: #d4edda; /* Example for success messages */
+    color: #155724; /* Example for success messages */
+}
+
+.flash-message {
+    transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Hiding the message */
+.flash-message-hide {
+    opacity: 0;
+    visibility: hidden;
+}
+
+/* Add to style.css */
+.welcome-container {
+    position: fixed;
+    top: 0;
+    right: 0;
+    background-color: #f8f9fa;
+    padding: 10px;
+    border-bottom-left-radius: 8px;
+}
+
+.signout-btn {
+    background-color: #dc3545; /* Bootstrap red */
+    color: white;
+    padding: 5px 10px;
+    text-decoration: none;
+    margin-left: 10px;
+    border-radius: 4px;
+}
+
+.signout-btn:hover {
+    background-color: #bd2130;
+}
+
+.toggle-container {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+    position: fixed;
+    padding: 10px;
+    top: 40px;
+    right: 0;
+}
+
+.toggle-container .switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+    margin-right: 10px;
+}
+
+.toggle-container .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-container .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.toggle-container .slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+.toggle-container input:checked + .slider {
+    background-color: #2196F3;
+}
+
+.toggle-container input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+#toggleLabel {
+    font-size: 16px;
+    color: #000;
+}
+
+.stats-sidebar {
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 250px;  
+    height: 120vh;
+    background-color: #f9f9f9;
+    border-right: 1px solid #ccc;
+    padding: 20px;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    box-sizing: border-box;
+    overflow-y: auto;  
+    overflow-x: hidden;  
+}
+
+.stats-table {
+    width: 100%; /* Full width of the sidebar */
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+
+.stats-table th, .stats-table td {
+    text-align: left;
+    padding: 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.stats-table th:nth-child(1), .stats-table td:nth-child(1) {
+    width: 60%;  
+}
+
+.stats-table th:nth-child(2), .stats-table td:nth-child(2) {
+    width: 40%;  
+}
+
+.stats-table th {
+    background-color: #eee; /* Light background for header */
+}
+
+/* for stats for games for each guess # */
+#guess-stats {
+    margin-top: 20px;
+}
+
+.guess-bar {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.guess-label {
+    width: 30px; /* Adjust width as needed */
+    text-align: left;
+    margin-right: 17px;
+    font-weight: bold;
+}
+
+.guess-bar-fill {
+    height: 20px;
+    background-color: #4CAF50; /* Green fill color */
+    border-radius: 5px;
+    text-align: right;
+    padding-right: 5px;
+    box-sizing: border-box;
+    color: white;
+    line-height: 20px; /* Match the height to vertically center text */
+    font-size: 12px;
+    transition: width 0.5s ease-in-out; /* Smooth transition for width changes */
+}
