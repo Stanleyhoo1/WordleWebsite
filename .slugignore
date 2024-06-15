@@ -1,1 +1,18 @@
+# Ignore Jupyter notebooks
 *.ipynb
+
+# Ignore development environments
+.env
+.venv
+env/
+venv/
+
+# Ignore static files if served elsewhere
+static/
+
+# Ignore logs
+*.log
+
+# Ignore database files
+*.sqlite3
+*.db
