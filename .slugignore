@@ -1,18 +1,27 @@
 # Ignore Jupyter notebooks
 *.ipynb
 
-# Ignore development environments
+# Ignore local environments
 .env
 .venv
 env/
 venv/
 
-# Ignore static files if served elsewhere
-static/
+# Ignore local database files
+*.sqlite3
+*.db
 
 # Ignore logs
 *.log
 
-# Ignore database files
-*.sqlite3
-*.db
+# Ignore static files if they are not required for deployment
+static/
+
+# Ignore test files and directories
+tests/
+__pycache__/
+*.py[cod]
+
+# Ignore unnecessary files
+*.md
+*.txt
