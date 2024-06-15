@@ -1,1 +1,0 @@
-web: python SmartWordle.py runserver %PORT%
