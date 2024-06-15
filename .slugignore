@@ -14,14 +14,5 @@ venv/
 # Ignore logs
 *.log
 
-# Ignore static files if they are not required for deployment
-static/
-
-# Ignore test files and directories
-tests/
-__pycache__/
-*.py[cod]
-
 # Ignore unnecessary files
 *.md
-*.txt
