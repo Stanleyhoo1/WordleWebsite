@@ -11,3 +11,4 @@ The wordle that gets harder as you play more
 
 # Note:
 This game contains unfamiliar words not in the original Wordle game as this game is intended to get harder!
+The game can also be accessed at https://smartwordle1-e2ea8759a540.herokuapp.com/
