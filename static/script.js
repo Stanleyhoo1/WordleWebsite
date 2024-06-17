@@ -36,11 +36,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     let gameOver = false;
     let currentAttempt = 0;
     let randomWord = "";
-    let games = num_games
+    let games = num_games;
     let wins = 0;
     let letter_frequency = letterFrequency;
     let guessed_letters = getDictionary();
     let start_game = false;
+    let isAnimating = false;
     
     // Update the wins
     for (const [word, guessCount] of Object.entries(userData)) {
@@ -124,6 +125,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // 
     function handleKeyPress(key) {
+        if (isAnimating) return;
         if (key === 'Delete') {
             if (currentGuess.length !== 0) {
                 currentGuess = currentGuess.slice(0, -1);
@@ -296,7 +298,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Runs when a key is pressed
     document.addEventListener('keydown', (e) => {
         // Check if the game is over or if the focus is on an input field
-        if (gameOver || document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA' || document.activeElement.tagName === 'SELECT') {
+        if (isAnimating || gameOver || document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA' || document.activeElement.tagName === 'SELECT') {
             return; // Ignore the event if the game is over or the focus is on input, textarea, or select
         }
 
@@ -362,6 +364,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Add the flipped class to trigger the animation
         box.classList.add('flipped');
+            setTimeout(() => {
+            box.classList.add('no-transition'); // Disable transition
+            box.classList.remove('flipped');
+            front.style.backgroundColor = back.style.backgroundColor;
+            front.style.borderColor = back.style.borderColor;
+
+            // Force reflow to apply the no-transition class immediately
+            void box.offsetWidth;
+
+            // Remove the no-transition class to re-enable transition
+            box.classList.remove('no-transition');
+        }, 400);
     }
     
     // Chooses new word
@@ -453,11 +467,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.submitGuess = () => {
         if (currentGuess.length !== 5) {
             console.log("Please enter a 5-letter word.");
+            shake();
             return; 
         }
     
         if (wordsArray.indexOf(currentGuess) === -1) {
             console.log("Not a valid 5-letter word!");
+            shake();
             return; 
         }
         
@@ -473,12 +489,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                         end = "th";
                     }
                     console.log(i + 1 + end + " letter must be " + mustHave[i]);
+                    shake();
                     return;
                 }
             }
             for (let i = 0; i < mustContain.length; i++){
                 if (!currentGuess.includes(mustContain[i])){
                     console.log("Guess must contain " + mustContain[i]);
+                    shake();
                     return;
                 }
             }
@@ -591,17 +609,23 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         }
         
+        isAnimating = true;
         for (let i = 0; i < guess.length; i++){
             setTimeout(() => {
                 flipBox(boxes[startIdx + i], guess[i], guessState[i]);
-            }, i * 500);
+            }, i * 400);
+            setTimeout(() => {
+                isAnimating = false; // End animation
+            }, 2000);
         }
     
         // Check if win
         if (guess === randomWord) {
             setTimeout(() => {
                 for (let i = startIdx; i < startIdx + 5; i++) {
-                    boxes[i].classList.add('win');
+                    setTimeout(() => {
+                        boxes[i].classList.add('win');
+                    }, (i - startIdx) * 100);
                 }
 
                 // Set a timeout to remove the 'win' class and change color to 'present'
@@ -610,7 +634,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         boxes[i].classList.remove('win');
                     }
                 }, 2000); // Delay in milliseconds
-            }, guess.length * 500); // Ensure this runs after all boxes have flipped
+            }, guess.length * 400); // Ensure this runs after all boxes have flipped
         }
     }
     
@@ -661,6 +685,21 @@ document.addEventListener('DOMContentLoaded', async () => {
             dic[letter] = 0;
         }
         return dic;
+    }
+    
+    function shake(){
+        const boxes = document.querySelectorAll('.wordle-box');
+        const startIdx = currentAttempt * 5;
+        for (let i = startIdx; i < startIdx + 5; i++){
+            boxes[i].classList.add('shake');
+        }
+        isAnimating = true
+        setTimeout(() => {
+            for (let i = startIdx; i < startIdx + 5; i++){
+                boxes[i].classList.remove('shake');
+            }
+            isAnimating = false;
+        }, 500);
     }
     
     newGame();
