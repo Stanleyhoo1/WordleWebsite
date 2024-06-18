@@ -15,9 +15,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     // classes need the .
     const grid = document.querySelector('.wordle-grid');
 
+    const chatBox = document.getElementById('chatBox');
+
     // div does not
     const keyboard = document.getElementById('keyboard');
     const playAgainButton = document.getElementById('playAgainButton');
+    const leaderboardIcon = document.getElementById('leaderboardIcon');
+    const leaderboardPopup = document.getElementById('leaderboardPopup');
+    const closeButton = document.getElementById('closeButton');
+    const leaderboardSelect = document.getElementById('leaderboardSelect');
+    const leaderboardBody = document.getElementById('leaderboardBody');
+    const playerRankBody = document.getElementById('playerRankBody');
     
     // Correct = green, present = yellow, absent = gray
     const correct = 'rgb(106, 170, 100)';
@@ -42,6 +50,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     let guessed_letters = getDictionary();
     let start_game = false;
     let isAnimating = false;
+    let win = false;
     
     // Update the wins
     for (const [word, guessCount] of Object.entries(userData)) {
@@ -85,6 +94,59 @@ document.addEventListener('DOMContentLoaded', async () => {
     toggleSidebarButton.addEventListener('click', () => {
         statsSidebar.classList.toggle('open');
     });
+    
+    leaderboardIcon.addEventListener('click', () => {
+        leaderboardPopup.style.display = 'block';
+    });
+
+    closeButton.addEventListener('click', () => {
+        leaderboardPopup.style.display = 'none';
+    });
+    
+    window.addEventListener('click', (event) => {
+        if (!leaderboardPopup.contains(event.target) && event.target !== leaderboardIcon) {
+            leaderboardPopup.style.display = 'none';
+        }
+    });
+    
+    leaderboardSelect.value = 'win_streak';
+    
+    leaderboardSelect.addEventListener('change', () => {
+        const selectedLeaderboard = leaderboardSelect.value;
+        // Fetch and display the leaderboard data based on the selection
+        updateLeaderboard(selectedLeaderboard);
+    });
+    
+    const event = new Event('change');
+    leaderboardSelect.dispatchEvent(event);
+    
+    let messageQueue = [];
+
+    function displayMessage(message) {
+      const chatBox = document.getElementById('chatBox');
+      const messageElement = document.createElement('div');
+      messageElement.className = 'message';
+      messageElement.textContent = message;
+
+      chatBox.prepend(messageElement); // Add message to the top
+      messageElement.style.display = 'block'; // Ensure the message is displayed
+      messageQueue.push(messageElement);
+
+      setTimeout(() => {
+        messageElement.classList.add('message-disappearing'); // Add disappearing class to fade out
+
+        setTimeout(() => {
+          chatBox.removeChild(messageElement); // Remove the message from the DOM
+          messageQueue.shift(); // Remove the first message from the queue
+        }, 1000); // Wait for the fade-out transition to complete
+      }, 2000); // Display the message for 2 seconds
+    }
+
+    function updateMessagePositions() {
+      messageQueue.forEach((message, index) => {
+        message.style.transform = `translateY(${index * 50}px)`;
+      });
+    }
 
     //reads the list of words
     await fetch('/static/words.txt')
@@ -297,12 +359,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Runs when a key is pressed
     document.addEventListener('keydown', (e) => {
+        const key = e.key.toUpperCase();
         // Check if the game is over or if the focus is on an input field
-        if (isAnimating || gameOver || document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA' || document.activeElement.tagName === 'SELECT') {
+        if ((isAnimating && key != 'ENTER')|| gameOver || document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA' || document.activeElement.tagName === 'SELECT') {
             return; // Ignore the event if the game is over or the focus is on input, textarea, or select
         }
+        
 
-        const key = e.key.toUpperCase();
         if (key.length === 1 && key >= 'A' && key <= 'Z') {
             if (currentGuess.length < 5) {
                 currentGuess += key;
@@ -385,7 +448,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ dic: dic, test: test, frequency: freq}),
+            body: JSON.stringify({ dic: dic, test: test, frequency: freq, win: win}),
         });
 
         if (!response.ok) {
@@ -467,12 +530,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.submitGuess = () => {
         if (currentGuess.length !== 5) {
             console.log("Please enter a 5-letter word.");
+            displayMessage("Please enter a 5-letter word.");
             shake();
             return; 
         }
     
         if (wordsArray.indexOf(currentGuess) === -1) {
             console.log("Not a valid 5-letter word!");
+            displayMessage("Not a valid 5-letter word!");
             shake();
             return; 
         }
@@ -488,14 +553,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                     } else if (i === 3 || i === 4){
                         end = "th";
                     }
-                    console.log(i + 1 + end + " letter must be " + mustHave[i]);
+                    displayMessage(i + 1 + end + " letter must be " + mustHave[i]);
                     shake();
                     return;
                 }
             }
             for (let i = 0; i < mustContain.length; i++){
                 if (!currentGuess.includes(mustContain[i])){
-                    console.log("Guess must contain " + mustContain[i]);
+                    displayMessage("Guess must contain " + mustContain[i]);
                     shake();
                     return;
                 }
@@ -511,12 +576,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (currentGuess === randomWord) {
             updateColors(currentGuess);
+            displayMessage("You Win!");
             console.log("You Win!");
             currentAttempt++;
             guessed_words[randomWord] = currentAttempt;
             possibleWords = possibleWords.filter(item => item !== randomWord);
             disableKeyboard();
             gameOver = true;
+            win = true;
             if (start_game){
                 update_game(currentGuess, gameOver);
             }
@@ -526,15 +593,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             }, 3000);
             currentGuess = '';
         } else {
+            chatBox.textContent = "";
             updateColors(currentGuess);
             console.log("Guess submitted:", currentGuess);
             currentAttempt++;
             if (currentAttempt >= 6) {
                 console.log("Game over! The word was: " + randomWord);
+                displayMessage("Game over! The word was: " + randomWord);
                 guessed_words[randomWord] = 10;
                 possibleWords = possibleWords.filter(item => item !== randomWord);
                 disableKeyboard(); 
                 gameOver = true;
+                win = false;
                 playAgainButton.style.display = 'inline-block';
             }
             if (start_game){
@@ -635,6 +705,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     }
                 }, 2000); // Delay in milliseconds
             }, guess.length * 400); // Ensure this runs after all boxes have flipped
+            win = true;
         }
     }
     
@@ -687,9 +758,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         return dic;
     }
     
+
     function shake(){
         const boxes = document.querySelectorAll('.wordle-box');
         const startIdx = currentAttempt * 5;
+        if (isAnimating){
+            return;
+        }
         for (let i = startIdx; i < startIdx + 5; i++){
             boxes[i].classList.add('shake');
         }
@@ -702,6 +777,101 @@ document.addEventListener('DOMContentLoaded', async () => {
         }, 500);
     }
     
+    async function updateLeaderboard(leaderboardType) {
+        try {
+            const data = await fetchLeaderboardData(leaderboardType);
+            const username = await getUsername();
+            displayLeaderboard(data, username);
+        } catch (error) {
+            console.error('Error updating leaderboard:', error);
+        }
+    }
+
+    function displayLeaderboard(data, username) {
+        const leaderboardBody = document.getElementById('leaderboard-body');
+        if (!leaderboardBody) {
+            console.error('leaderboard-body element not found');
+            return;
+        }
+
+        console.log('data', data);
+        leaderboardBody.innerHTML = '';  // Clear existing content
+
+        for (let i = 0; i < data.length; i++) {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${i + 1}</td>
+                <td>${data[i].player}</td>
+                <td>${data[i].score}</td>
+            `;
+            if (username === data[i].player) {
+                row.classList.add('highlighted');
+            }
+            leaderboardBody.appendChild(row);
+        }
+    }
+
+    async function fetchLeaderboardData(leaderboardType) {
+        try {
+            const leaderboard = await getLeaderBoardData();
+
+            const data = {
+                win_streak: leaderboard.win_streak,
+                wins: leaderboard.wins,
+                average_guesses: leaderboard.average_guesses
+            };
+
+            console.log(data); // Debugging line
+            return data[leaderboardType];
+        } catch (error) {
+            console.error('Error fetching leaderboard data:', error);
+        }
+    }
+
+    async function getLeaderBoardData(){
+        const response = await fetch('/get_leaderboard_data', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+        const leaderboard_win_streak = data.win_streak;
+        const leaderboard_wins = data.wins;
+        const leaderboard_guesses = data.guesses;
+
+        console.log("streak", leaderboard_win_streak);
+        console.log("wins", leaderboard_wins);
+        console.log("guesses", leaderboard_guesses);
+
+        return {
+            win_streak: leaderboard_win_streak,
+            wins: leaderboard_wins,
+            average_guesses: leaderboard_guesses
+        };
+    }
+
+    async function getUsername(){
+        const response = await fetch('/get_username', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+        return String(data.username);
+    }
+
     newGame();
     
     submitPreviousGuesses(game_guesses);
