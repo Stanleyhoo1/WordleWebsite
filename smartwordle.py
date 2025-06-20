@@ -7,7 +7,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import json
 
 app = Flask(__name__)
-secret_key = os.urandom(24)
+app.secret_key = os.urandom(24)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -81,7 +81,7 @@ def logout():
 
 def validate_login(acc_username, password):
     basedir = os.path.abspath(os.path.dirname(__file__))
-    database_path = os.path.join(basedir, 'db', 'users.db')
+    database_path = os.path.join(basedir, 'users.db')
     conn = sqlite3.connect(database_path)
     cur = conn.cursor()
 
@@ -301,7 +301,7 @@ def choose_new_word_api():
     if 'username' in session:    
         username = session['username']
         basedir = os.path.abspath(os.path.dirname(__file__))
-        database_path = os.path.join(basedir, 'db', 'users.db')
+        database_path = os.path.join(basedir, 'users.db')
 
         # Get the most recent word and guess
         most_recent_word, most_recent_guess = list(dic.items())[-1]
@@ -360,7 +360,7 @@ def set_last_word(word):
     if 'username' in session:    
         username = session['username']
         basedir = os.path.abspath(os.path.dirname(__file__))
-        database_path = os.path.join(basedir, 'db', 'users.db')
+        database_path = os.path.join(basedir, 'users.db')
         with sqlite3.connect(database_path) as conn:
             cur = conn.cursor()
             cur.execute("SELECT id FROM users WHERE username = ?", (username,))
