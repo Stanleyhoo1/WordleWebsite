@@ -409,4 +409,4 @@ def choose_new_word(dic, test_words, letter_freqs):
     return hard_words[0][1]  # Return the word with the highest prediction value
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=False, host='0.0.0.0')
