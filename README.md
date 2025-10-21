@@ -12,3 +12,5 @@ The wordle that gets harder as you play more
 # Note:
 This game contains unfamiliar words not in the original Wordle game as this game is intended to get harder!
 The game can also be accessed [here](https://wordle.stanleyhoo1.tech)
+
+Original repo: [repository](https://github.com/WenZ321/Wordle)
